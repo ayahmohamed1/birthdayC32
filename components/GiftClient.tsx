@@ -290,19 +290,19 @@ export default function GiftClient({ data }: Props) {
           <button className="btn-primary" onClick={() => scrollTo('cake')}>
             Start the Celebration 🎁
           </button>
-          <div 
-            onClick={() => scrollTo('cake')} 
-            style={{ 
-              marginTop: '35px', 
-              color: '#f472b6', 
-              cursor: 'pointer', 
-              fontSize: '0.85rem', 
-              letterSpacing: '0.15em', 
+          <div
+            onClick={() => scrollTo('cake')}
+            style={{
+              marginTop: '35px',
+              color: '#f472b6',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              letterSpacing: '0.15em',
               textTransform: 'uppercase',
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              gap: '6px' 
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px'
             }}
           >
             <span>Scroll to Explore</span>
@@ -327,9 +327,9 @@ export default function GiftClient({ data }: Props) {
               <p className="description">
                 Take a deep breath, make a heartfelt wish, and blow out the candle!
               </p>
-              <button 
-                className="btn-primary" 
-                onClick={() => { 
+              <button
+                className="btn-primary"
+                onClick={() => {
                   setIsCakeBlown(true)
                   setTimeout(launchConfetti, 100)
                 }}
@@ -408,7 +408,7 @@ export default function GiftClient({ data }: Props) {
           </p>
 
           {!isAlbumOpen ? (
-            /* كفر الألبوم الخارجي */
+            /* Album Cover */
             <div
               onClick={() => setIsAlbumOpen(true)}
               className="polaroid-card"
