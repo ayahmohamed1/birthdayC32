@@ -8,11 +8,11 @@ interface Props {
   data: GiftData
 }
 
-type ScreenType = 
-  | 'gift_intro' | 'menu' | 'cake_lit' | 'cake_blown' 
+type ScreenType =
+  | 'gift_intro' | 'menu' | 'cake_lit' | 'cake_blown'
   | 'envelope' | 'letter' | 'moments_cover' | 'moments_book' | 'song' | 'date' | 'success'
 
-// قلوب خلفية ناعمة تطير بشكل مستمر وسلس بدون استهلاك للمعالج أو تهنيج
+// قلوب خلفية ناعمة تطير بشكل مستمر  وسلس بدون استهلاك للمعالج أو تهنيج
 const BACKGROUND_HEARTS = [
   { id: 1, left: '6%', size: 26, duration: '6.5s', delay: '0s', sway: '20px', rot: '12deg', emoji: '🩷', opacity: 0.75 },
   { id: 2, left: '14%', size: 30, duration: '8s', delay: '2.5s', sway: '-25px', rot: '-15deg', emoji: '💖', opacity: 0.8 },
@@ -34,10 +34,10 @@ const BACKGROUND_HEARTS = [
 export default function GiftClient({ data }: Props) {
   const [loading, setLoading] = useState(true)
   const [screen, setScreen] = useState<ScreenType>('gift_intro')
-  
+
   const [musicPlaying, setMusicPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  
+
   const [isSongPlaying, setIsSongPlaying] = useState(false)
   const [songProgress, setSongProgress] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
@@ -72,7 +72,7 @@ export default function GiftClient({ data }: Props) {
   const navigateTo = useCallback((newScreen: ScreenType) => {
     window.history.pushState({ screen: newScreen }, '')
     setScreen(newScreen)
-    
+
     if (newScreen !== 'song' && isSongPlaying && songAudioRef.current) {
       songAudioRef.current.pause()
       setIsSongPlaying(false)
@@ -176,7 +176,7 @@ export default function GiftClient({ data }: Props) {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       let alive = false
       for (const p of pieces) {
-        p.x += p.vx; p.y += p.vy; p.rotation += p.rotationSpeed; p.vy += 0.05 
+        p.x += p.vx; p.y += p.vy; p.rotation += p.rotationSpeed; p.vy += 0.05
         if (p.y < canvas.height + 20) alive = true
         ctx.save()
         ctx.translate(p.x, p.y)
@@ -253,7 +253,7 @@ export default function GiftClient({ data }: Props) {
       <div className={`screen ${screen === 'gift_intro' ? 'visible' : ''}`}>
         <div className="content-wrapper">
           <p className="subtitle">✦ Something special is waiting ✦</p>
-          <h1 className="gift-title">A Gift <br/><span>just for You</span></h1>
+          <h1 className="gift-title">A Gift <br /><span>just for You</span></h1>
           <div className="crown-icon">👑</div>
           <div className="dots">• • •</div>
           <p className="description">
@@ -271,15 +271,15 @@ export default function GiftClient({ data }: Props) {
             <p className="description">Tap any memory to reveal</p>
           </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: '14px', 
-            width: '100%', 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '14px',
+            width: '100%',
             maxWidth: '360px',
-            marginBottom: '1.5rem' 
+            marginBottom: '1.5rem'
           }}>
-            <div 
+            <div
               onClick={() => navigateTo('cake_lit')}
               className="polaroid-card"
               style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
@@ -287,8 +287,8 @@ export default function GiftClient({ data }: Props) {
               <span style={{ fontSize: '2rem' }}>🎂</span>
               <p style={{ color: '#f472b6', marginTop: '8px', fontWeight: 'bold' }}>The Cake</p>
             </div>
-            
-            <div 
+
+            <div
               onClick={() => navigateTo('envelope')}
               className="polaroid-card"
               style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
@@ -297,7 +297,7 @@ export default function GiftClient({ data }: Props) {
               <p style={{ color: '#f472b6', marginTop: '8px', fontWeight: 'bold' }}>Message</p>
             </div>
 
-            <div 
+            <div
               onClick={() => { setCurrentPhotoIndex(0); navigateTo('moments_cover'); }}
               className="polaroid-card"
               style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
@@ -306,7 +306,7 @@ export default function GiftClient({ data }: Props) {
               <p style={{ color: '#f472b6', marginTop: '8px', fontWeight: 'bold' }}>Moments</p>
             </div>
 
-            <div 
+            <div
               onClick={() => navigateTo('song')}
               className="polaroid-card"
               style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
@@ -374,7 +374,7 @@ export default function GiftClient({ data }: Props) {
       </div>
 
       {/* ── SCREEN 6: LETTER (مع قلوب ناعمة وخفيفة متفاعلة لا تعلق أبداً) ── */}
-      <div 
+      <div
         className={`screen ${screen === 'letter' ? 'visible' : ''}`}
         onClick={handleLetterScreenClick}
       >
@@ -422,7 +422,7 @@ export default function GiftClient({ data }: Props) {
         <div className="content-wrapper" style={{ zIndex: 95, position: 'relative' }}>
           <div className="letter-card">
             <div className="top-accent-sq"></div>
-            
+
             <div style={{
               width: '120px',
               height: '120px',
@@ -438,17 +438,17 @@ export default function GiftClient({ data }: Props) {
               justifyContent: 'center',
               clipPath: 'path("M60 105 C 60 105, 5 65, 5 32 C 5 15, 20 6, 36 6 C 48 6, 56 15, 60 24 C 64 15, 72 6, 84 6 C 100 6, 115 15, 115 32 C 115 65, 60 105, 60 105 Z")'
             }}>
-              <Image 
-                src="/images/pic1.jpg" 
-                alt="Letter Special Photo" 
-                fill 
-                style={{ objectFit: 'cover' }} 
-                unoptimized 
+              <Image
+                src="/images/pic1.jpg"
+                alt="Letter Special Photo"
+                fill
+                style={{ objectFit: 'cover' }}
+                unoptimized
               />
             </div>
 
             <h2 className="letter-title" style={{ marginTop: '0', color: '#f472b6' }}>To my favorite person,</h2>
-            
+
             <div className="letter-scroll-area">
               <div className="letter-body" style={{ color: '#f472b6' }}>{data.message}</div>
               <div className="letter-divider"><span>✦</span></div>
@@ -458,9 +458,9 @@ export default function GiftClient({ data }: Props) {
               </div>
             </div>
 
-            <button 
-              className="btn-secondary" 
-              style={{ width: '100%', marginTop: '15px' }} 
+            <button
+              className="btn-secondary"
+              style={{ width: '100%', marginTop: '15px' }}
               onClick={(e) => {
                 e.stopPropagation()
                 navigateTo('menu')
@@ -475,7 +475,7 @@ export default function GiftClient({ data }: Props) {
       {/* ── SCREEN 7A: MOMENTS COVER ── */}
       <div className={`screen ${screen === 'moments_cover' ? 'visible' : ''}`}>
         <div className="content-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div 
+          <div
             onClick={() => navigateTo('moments_book')}
             style={{
               width: '100%',
@@ -491,12 +491,12 @@ export default function GiftClient({ data }: Props) {
             }}
           >
             <div style={{ width: '100%', height: '340px', position: 'relative', borderRadius: '10px', overflow: 'hidden', marginBottom: '12px' }}>
-              <Image 
-                src="/images/cover.jpg" 
-                alt="Moments Cover" 
-                fill 
-                style={{ objectFit: 'cover' }} 
-                unoptimized 
+              <Image
+                src="/images/cover.jpg"
+                alt="Moments Cover"
+                fill
+                style={{ objectFit: 'cover' }}
+                unoptimized
               />
             </div>
 
@@ -512,16 +512,16 @@ export default function GiftClient({ data }: Props) {
         <div className="content-wrapper">
           <h2 className="gift-title" style={{ fontStyle: 'italic', marginBottom: '0.2rem' }}>Our Memories</h2>
           <p className="subtitle" style={{ color: '#94a3b8', marginBottom: '1.2rem' }}>Page {currentPhotoIndex + 1} of 4</p>
-          
+
           <div className="polaroid-card" style={{ width: '100%', maxWidth: '300px', margin: '0 auto 1.2rem auto', padding: '12px', background: '#1c0710' }}>
-             <div className="polaroid-pin"></div>
-             <div className="polaroid-img-wrapper" style={{ width: '100%', height: '320px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-                <Image src={momentsImages[currentPhotoIndex]} alt={`Memory ${currentPhotoIndex + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
-             </div>
+            <div className="polaroid-pin"></div>
+            <div className="polaroid-img-wrapper" style={{ width: '100%', height: '320px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+              <Image src={momentsImages[currentPhotoIndex]} alt={`Memory ${currentPhotoIndex + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
+            </div>
           </div>
 
           <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'center', marginBottom: '1rem' }}>
-            <button 
+            <button
               onClick={() => setCurrentPhotoIndex((prev) => (prev > 0 ? prev - 1 : 3))}
               style={{
                 background: '#381322',
@@ -540,7 +540,7 @@ export default function GiftClient({ data }: Props) {
             >
               ←
             </button>
-            <button 
+            <button
               onClick={() => setCurrentPhotoIndex((prev) => (prev < 3 ? prev + 1 : 0))}
               style={{
                 background: '#381322',
@@ -584,12 +584,12 @@ export default function GiftClient({ data }: Props) {
               </div>
 
               <div className="timeline-container">
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="100" 
-                  value={songProgress || 0} 
-                  onChange={handleSongSeek} 
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={songProgress || 0}
+                  onChange={handleSongSeek}
                   className="ios-slider"
                 />
                 <div className="time-labels">
@@ -614,9 +614,9 @@ export default function GiftClient({ data }: Props) {
             </div>
           </div>
 
-          <audio 
-            ref={songAudioRef} 
-            src="/audio/song.mp3" 
+          <audio
+            ref={songAudioRef}
+            src="/audio/song.mp3"
             preload="auto"
             onTimeUpdate={handleSongTimeUpdate}
             onLoadedMetadata={handleSongLoadedMetadata}
@@ -634,7 +634,7 @@ export default function GiftClient({ data }: Props) {
         <div className="content-wrapper">
           <p className="subtitle">✦ IMPORTANT QUESTION ✦</p>
           <h1 className="gift-title">Will you stay with me forever?</h1>
-          
+
           <div className="svg-container" style={{ position: 'relative', width: '180px', height: '180px', margin: '15px auto' }}>
             <Image src="/images/bear-ask.jpg" alt="Will you stay with me?" fill style={{ objectFit: 'cover', borderRadius: '50%' }} unoptimized />
           </div>
@@ -681,7 +681,7 @@ function Sparkles() {
           position: 'absolute', width: '3px', height: '3px', background: '#fff', borderRadius: '50%',
           top: `${10 + (i * 12) % 80}%`, left: `${5 + (i * 13) % 90}%`,
           boxShadow: '0 0 10px #f472b6', opacity: 0.6
-        }}/>
+        }} />
       ))}
     </div>
   )
@@ -701,15 +701,15 @@ function BuntingSVG() {
 function CakeLitSVG() {
   return (
     <svg viewBox="0 0 200 200" fill="none" style={{ width: '100%', height: '100%' }}>
-      <ellipse cx="100" cy="180" rx="75" ry="10" fill="#0d0407"/>
-      <path d="M40 130 H160 V175 C160 178 150 180 100 180 C50 180 40 178 40 175 V130 Z" fill="#381322"/>
-      <rect x="55" y="90" width="90" height="40" rx="4" fill="#831843"/>
-      <rect x="70" y="55" width="60" height="35" rx="4" fill="#db2777"/>
-      <circle cx="50" cy="130" r="5" fill="#f472b6"/><circle cx="80" cy="130" r="5" fill="#f472b6"/><circle cx="110" cy="130" r="5" fill="#f472b6"/><circle cx="140" cy="130" r="5" fill="#f472b6"/>
-      <rect x="96" y="25" width="8" height="30" rx="1" fill="#fbcfe8"/>
-      <line x1="96" y1="35" x2="104" y2="30" stroke="#f472b6" strokeWidth="2"/>
+      <ellipse cx="100" cy="180" rx="75" ry="10" fill="#0d0407" />
+      <path d="M40 130 H160 V175 C160 178 150 180 100 180 C50 180 40 178 40 175 V130 Z" fill="#381322" />
+      <rect x="55" y="90" width="90" height="40" rx="4" fill="#831843" />
+      <rect x="70" y="55" width="60" height="35" rx="4" fill="#db2777" />
+      <circle cx="50" cy="130" r="5" fill="#f472b6" /><circle cx="80" cy="130" r="5" fill="#f472b6" /><circle cx="110" cy="130" r="5" fill="#f472b6" /><circle cx="140" cy="130" r="5" fill="#f472b6" />
+      <rect x="96" y="25" width="8" height="30" rx="1" fill="#fbcfe8" />
+      <line x1="96" y1="35" x2="104" y2="30" stroke="#f472b6" strokeWidth="2" />
       <g style={{ animation: 'pulse 1s infinite alternate', transformOrigin: '100px 22px' }}>
-        <path d="M100 8 C92 18 92 26 100 30 C108 26 108 18 100 8 Z" fill="#facc15"/>
+        <path d="M100 8 C92 18 92 26 100 30 C108 26 108 18 100 8 Z" fill="#facc15" />
       </g>
     </svg>
   )
@@ -718,11 +718,11 @@ function CakeLitSVG() {
 function CakeBlownSVG() {
   return (
     <svg viewBox="0 0 200 200" fill="none" style={{ width: '100%', height: '100%' }}>
-      <ellipse cx="100" cy="180" rx="75" ry="10" fill="#0d0407"/>
-      <path d="M40 130 H160 V175 C160 178 150 180 100 180 C50 180 40 178 40 175 V130 Z" fill="#381322"/>
-      <rect x="55" y="90" width="90" height="40" rx="4" fill="#831843"/>
-      <rect x="70" y="55" width="60" height="35" rx="4" fill="#db2777"/>
-      <rect x="96" y="25" width="8" height="30" rx="1" fill="#fbcfe8"/>
+      <ellipse cx="100" cy="180" rx="75" ry="10" fill="#0d0407" />
+      <path d="M40 130 H160 V175 C160 178 150 180 100 180 C50 180 40 178 40 175 V130 Z" fill="#381322" />
+      <rect x="55" y="90" width="90" height="40" rx="4" fill="#831843" />
+      <rect x="70" y="55" width="60" height="35" rx="4" fill="#db2777" />
+      <rect x="96" y="25" width="8" height="30" rx="1" fill="#fbcfe8" />
       <path d="M100 20 Q 95 10 100 0 T 100 -10" stroke="#94a3b8" strokeWidth="2" fill="none" strokeLinecap="round" />
     </svg>
   )
@@ -731,18 +731,18 @@ function CakeBlownSVG() {
 function EnvelopeSVG() {
   return (
     <svg viewBox="0 0 280 180" fill="none" style={{ width: '100%', height: '100%' }}>
-      <rect width="280" height="180" rx="12" fill="#0d0407" stroke="#50152d" strokeWidth="1.5"/>
-      <rect x="25" y="15" width="230" height="90" rx="6" fill="#f4f4f5"/>
-      <line x1="45" y1="35" x2="235" y2="35" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round"/>
-      <line x1="45" y1="55" x2="190" y2="55" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round"/>
-      <line x1="45" y1="75" x2="140" y2="75" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M0 180 L140 85 L280 180 Z" fill="#1f0a13"/>
-      <path d="M0 0 L140 85 L0 180 Z" fill="#14040a"/>
-      <path d="M280 0 L140 85 L280 180 Z" fill="#14040a"/>
-      <path d="M0 0 L140 105 L280 0 Z" fill="#381322"/>
-      <circle cx="140" cy="105" r="22" fill="#0d0407" stroke="#f472b6" strokeWidth="1.5"/>
-      <circle cx="140" cy="105" r="18" fill="#f472b6"/>
-      <path d="M140 112 C140 112 131 102 127 106 C123 110 128 118 140 125 C152 118 157 110 153 106 C149 102 140 112 140 112 Z" fill="#ffffff"/>
+      <rect width="280" height="180" rx="12" fill="#0d0407" stroke="#50152d" strokeWidth="1.5" />
+      <rect x="25" y="15" width="230" height="90" rx="6" fill="#f4f4f5" />
+      <line x1="45" y1="35" x2="235" y2="35" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="45" y1="55" x2="190" y2="55" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="45" y1="75" x2="140" y2="75" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M0 180 L140 85 L280 180 Z" fill="#1f0a13" />
+      <path d="M0 0 L140 85 L0 180 Z" fill="#14040a" />
+      <path d="M280 0 L140 85 L280 180 Z" fill="#14040a" />
+      <path d="M0 0 L140 105 L280 0 Z" fill="#381322" />
+      <circle cx="140" cy="105" r="22" fill="#0d0407" stroke="#f472b6" strokeWidth="1.5" />
+      <circle cx="140" cy="105" r="18" fill="#f472b6" />
+      <path d="M140 112 C140 112 131 102 127 106 C123 110 128 118 140 125 C152 118 157 110 153 106 C149 102 140 112 140 112 Z" fill="#ffffff" />
     </svg>
   )
 }
@@ -762,9 +762,9 @@ function VinylSVG() {
   )
 }
 
-function PlayIcon() { return <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> }
-function PauseIcon() { return <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> }
-function ForwardIcon() { return <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg> }
-function BackwardIcon() { return <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6 z"/></svg> }
-function VolumeMinIcon() { return <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 9v6h4l5 5V4l-5 5H7z"/></svg> }
-function VolumeMaxIcon() { return <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg> }
+function PlayIcon() { return <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg> }
+function PauseIcon() { return <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg> }
+function ForwardIcon() { return <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" /></svg> }
+function BackwardIcon() { return <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6 z" /></svg> }
+function VolumeMinIcon() { return <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 9v6h4l5 5V4l-5 5H7z" /></svg> }
+function VolumeMaxIcon() { return <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" /></svg> }
