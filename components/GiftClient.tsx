@@ -8,11 +8,7 @@ interface Props {
   data: GiftData
 }
 
-type ScreenType =
-  | 'gift_intro' | 'menu' | 'cake_lit' | 'cake_blown'
-  | 'envelope' | 'letter' | 'moments_cover' | 'moments_book' | 'song' | 'date' | 'success'
-
-// قلوب خلفية ناعمة تطير بشكل مستمر  وسلس بدون استهلاك للمعالج أو تهنيج
+// قلوب خلفية ناعمة تطير بشكل مستمر وسلس بدون استهلاك للمعالج
 const BACKGROUND_HEARTS = [
   { id: 1, left: '6%', size: 26, duration: '6.5s', delay: '0s', sway: '20px', rot: '12deg', emoji: '🩷', opacity: 0.75 },
   { id: 2, left: '14%', size: 30, duration: '8s', delay: '2.5s', sway: '-25px', rot: '-15deg', emoji: '💖', opacity: 0.8 },
@@ -32,80 +28,46 @@ const BACKGROUND_HEARTS = [
 ]
 
 export default function GiftClient({ data }: Props) {
-  const [loading, setLoading] = useState(true)
-  const [screen, setScreen] = useState<ScreenType>('gift_intro')
+  // حالة شمعة الكيك
+  const [isCakeBlown, setIsCakeBlown] = useState(false)
 
-  const [musicPlaying, setMusicPlaying] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  // حالة سؤال Forever
+  const [hasSaidYes, setHasSaidYes] = useState(false)
+  const [noCount, setNoCount] = useState(0)
 
+  // معرض الذكريات
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+  const momentsImages = ['/images/pic1.jpg', '/images/pic2.jpg', '/images/pic3.jpg', '/images/pic4.jpg']
+
+  // مشغل الأغنية
   const [isSongPlaying, setIsSongPlaying] = useState(false)
   const [songProgress, setSongProgress] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const songAudioRef = useRef<HTMLAudioElement | null>(null)
 
-  const [noCount, setNoCount] = useState(0)
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
-
-  const momentsImages = ['/images/pic1.jpg', '/images/pic2.jpg', '/images/pic3.jpg', '/images/pic4.jpg']
-
+  // احتفال الكونفيتي
   const confettiRef = useRef<HTMLCanvasElement | null>(null)
   const confettiAnimRef = useRef<number | null>(null)
 
-  // تفاعلات قلوب شاشة الرسالة عند النقر
+  // تفاعلات قلوب النقر واللمس
   const [clickHearts, setClickHearts] = useState<{ id: number; x: number; y: number; emoji: string; burstX: number; burstY: number; rot: number; size: number }[]>([])
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1800)
-    return () => clearTimeout(timer)
-  }, [])
-
-  useEffect(() => {
-    if (data.musicUrl) {
-      const audio = new Audio(data.musicUrl)
-      audio.loop = true; audio.volume = 0.3
-      audioRef.current = audio
+  // التمرير السلس بين الأقسام
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
     }
-    return () => audioRef.current?.pause()
-  }, [data.musicUrl])
-
-  const navigateTo = useCallback((newScreen: ScreenType) => {
-    window.history.pushState({ screen: newScreen }, '')
-    setScreen(newScreen)
-
-    if (newScreen !== 'song' && isSongPlaying && songAudioRef.current) {
-      songAudioRef.current.pause()
-      setIsSongPlaying(false)
-    }
-  }, [isSongPlaying])
-
-  useEffect(() => {
-    window.history.replaceState({ screen: 'gift_intro' }, '')
-    const handlePopState = (event: PopStateEvent) => {
-      if (event.state && event.state.screen) setScreen(event.state.screen)
-      else setScreen('gift_intro')
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
-
-  const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00"
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
   }
 
+  // دالة تشغيل / إيقاف الأغنية
   const toggleOurSong = () => {
     if (!songAudioRef.current) return
     if (isSongPlaying) {
       songAudioRef.current.pause()
       setIsSongPlaying(false)
     } else {
-      if (musicPlaying && audioRef.current) {
-        audioRef.current.pause()
-        setMusicPlaying(false)
-      }
       songAudioRef.current.play().then(() => {
         setIsSongPlaying(true)
       }).catch((error) => {
@@ -150,12 +112,21 @@ export default function GiftClient({ data }: Props) {
     }
   }
 
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00"
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+  }
+
+  // دالة إطلاق الكونفيتي
   const launchConfetti = useCallback(() => {
     const canvas = confettiRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
 
     const pieces: any[] = []
     const colors = ['#f472b6', '#fbcfe8', '#db2777', '#fda4af', '#fff', '#e2e8f0']
@@ -176,7 +147,10 @@ export default function GiftClient({ data }: Props) {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       let alive = false
       for (const p of pieces) {
-        p.x += p.vx; p.y += p.vy; p.rotation += p.rotationSpeed; p.vy += 0.05
+        p.x += p.vx
+        p.y += p.vy
+        p.rotation += p.rotationSpeed
+        p.vy += 0.05
         if (p.y < canvas.height + 20) alive = true
         ctx.save()
         ctx.translate(p.x, p.y)
@@ -193,8 +167,8 @@ export default function GiftClient({ data }: Props) {
     confettiAnimRef.current = requestAnimationFrame(animate)
   }, [])
 
-  // دالة تفجير قلوب تفاعلية عند النقر أو اللمس في شاشة الرسالة
-  const handleLetterScreenClick = useCallback((e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+  // تفجير قلوب عند لمس الشاشة
+  const handlePageClick = useCallback((e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     let clientX = 0
     let clientY = 0
     if ('touches' in e) {
@@ -229,7 +203,6 @@ export default function GiftClient({ data }: Props) {
     setClickHearts(prev => [...prev.slice(-20), ...newHearts])
   }, [])
 
-  // تنظيف قلوب النقر بعد انتهاء الأنيميشن تلقائياً
   useEffect(() => {
     if (clickHearts.length === 0) return
     const timer = setTimeout(() => {
@@ -239,7 +212,8 @@ export default function GiftClient({ data }: Props) {
   }, [clickHearts])
 
   return (
-    <div className="gift-page">
+    <div className="gift-page" onClick={handlePageClick}>
+      {/* إطار الشاشة الفخم */}
       <div className="corners-overlay">
         <div className="corner tl"></div><div className="corner tr"></div>
         <div className="corner bl"></div><div className="corner br"></div>
@@ -247,10 +221,63 @@ export default function GiftClient({ data }: Props) {
       <div className="side-text left">BIRTHDAY • CELEBRATION</div>
       <div className="side-text right">WITH LOVE • FOR YOU</div>
 
+      {/* كانفاس الكونفيتي في المقدمة */}
       <canvas ref={confettiRef} id="confetti-canvas" style={{ position: 'fixed', inset: 0, zIndex: 100, pointerEvents: 'none' }} />
 
-      {/* ── SCREEN 1: INTRO ── */}
-      <div className={`screen ${screen === 'gift_intro' ? 'visible' : ''}`}>
+      {/* قلوب خلفية مستمرة بدون تهنيج */}
+      <div className="letter-hearts-container" aria-hidden="true">
+        {BACKGROUND_HEARTS.map((h) => (
+          <span
+            key={h.id}
+            className="floating-heart"
+            style={{
+              left: h.left,
+              fontSize: `${h.size}px`,
+              ['--duration' as any]: h.duration,
+              ['--delay' as any]: h.delay,
+              ['--sway-x' as any]: h.sway,
+              ['--rot' as any]: h.rot,
+              ['--max-opacity' as any]: h.opacity,
+            }}
+          >
+            {h.emoji}
+          </span>
+        ))}
+      </div>
+
+      {/* قلوب النقر التفاعلية */}
+      {clickHearts.map((ch) => (
+        <span
+          key={ch.id}
+          className="click-heart-burst"
+          style={{
+            left: `${ch.x}px`,
+            top: `${ch.y}px`,
+            fontSize: `${ch.size}px`,
+            ['--burst-x' as any]: `${ch.burstX}px`,
+            ['--burst-y' as any]: `${ch.burstY}px`,
+            ['--burst-rot' as any]: `${ch.rot}deg`,
+          }}
+        >
+          {ch.emoji}
+        </span>
+      ))}
+
+      {/* شريط تنقل سريع عائم أسفل الشاشة */}
+      <nav className="floating-navbar" aria-label="Quick jump">
+        <button onClick={() => scrollTo('intro')} title="Home">✨</button>
+        <button onClick={() => scrollTo('cake')} title="The Cake">🎂</button>
+        <button onClick={() => scrollTo('letter')} title="Message">💌</button>
+        <button onClick={() => scrollTo('moments')} title="Moments">📸</button>
+        <button onClick={() => scrollTo('song')} title="Our Song">🎵</button>
+        <button onClick={() => scrollTo('date')} title="Question">💍</button>
+      </nav>
+
+      {/* أعلام الزينة أعلى الصفحة */}
+      <BuntingSVG />
+
+      {/* ── 1. SECTION: HERO / INTRO ── */}
+      <section id="intro" className="gift-section" style={{ minHeight: '92vh', paddingTop: '80px' }}>
         <div className="content-wrapper">
           <p className="subtitle">✦ Something special is waiting ✦</p>
           <h1 className="gift-title">A Gift <br /><span>just for You</span></h1>
@@ -259,167 +286,75 @@ export default function GiftClient({ data }: Props) {
           <p className="description">
             "Today is a day as beautiful as you are. I've prepared a little digital surprise to celebrate your special moment."
           </p>
-          <button className="btn-primary" onClick={() => navigateTo('menu')}>Open Your Surprise 🎁</button>
-        </div>
-      </div>
-
-      {/* ── SCREEN 2: MENU ── */}
-      <div className={`screen ${screen === 'menu' ? 'visible' : ''}`}>
-        <div className="content-wrapper">
-          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-            <h1 className="gift-title">Choose a <span>Surprise</span></h1>
-            <p className="description">Tap any memory to reveal</p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '14px',
-            width: '100%',
-            maxWidth: '360px',
-            marginBottom: '1.5rem'
-          }}>
-            <div
-              onClick={() => navigateTo('cake_lit')}
-              className="polaroid-card"
-              style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
-            >
-              <span style={{ fontSize: '2rem' }}>🎂</span>
-              <p style={{ color: '#f472b6', marginTop: '8px', fontWeight: 'bold' }}>The Cake</p>
-            </div>
-
-            <div
-              onClick={() => navigateTo('envelope')}
-              className="polaroid-card"
-              style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
-            >
-              <span style={{ fontSize: '2rem' }}>💌</span>
-              <p style={{ color: '#f472b6', marginTop: '8px', fontWeight: 'bold' }}>Message</p>
-            </div>
-
-            <div
-              onClick={() => { setCurrentPhotoIndex(0); navigateTo('moments_cover'); }}
-              className="polaroid-card"
-              style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
-            >
-              <span style={{ fontSize: '2.0rem' }}>📸</span>
-              <p style={{ color: '#f472b6', marginTop: '8px', fontWeight: 'bold' }}>Moments</p>
-            </div>
-
-            <div
-              onClick={() => navigateTo('song')}
-              className="polaroid-card"
-              style={{ cursor: 'pointer', textAlign: 'center', padding: '18px 10px', background: '#1a050c' }}
-            >
-              <span style={{ fontSize: '2rem' }}>🎵</span>
-              <p style={{ color: '#f472b6', marginTop: '8px', fontWeight: 'bold' }}>Our Song</p>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-            <button className="btn-secondary" onClick={() => navigateTo('gift_intro')} style={{ margin: 0 }}>
-              ← Back
-            </button>
-            <button className="btn-primary" onClick={() => navigateTo('date')}>
-              Next →
-            </button>
+          <button className="btn-primary" onClick={() => scrollTo('cake')}>
+            Start the Celebration 🎁
+          </button>
+          <div 
+            onClick={() => scrollTo('cake')} 
+            style={{ 
+              marginTop: '35px', 
+              color: '#f472b6', 
+              cursor: 'pointer', 
+              fontSize: '0.85rem', 
+              letterSpacing: '0.15em', 
+              textTransform: 'uppercase',
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              gap: '6px' 
+            }}
+          >
+            <span>Scroll to Explore</span>
+            <span style={{ fontSize: '1.3rem' }}>↓</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── SCREEN 3: CAKE LIT ── */}
-      <div className={`screen ${screen === 'cake_lit' ? 'visible' : ''}`}>
-        <BuntingSVG />
+      <div className="section-divider">✦ • 🎂 • ✦</div>
+
+      {/* ── 2. SECTION: THE CAKE ── */}
+      <section id="cake" className="gift-section">
         <div className="content-wrapper">
           <div className="svg-container">
             <div className="cake-glow"></div>
-            <CakeLitSVG />
+            {!isCakeBlown ? <CakeLitSVG /> : <CakeBlownSVG />}
           </div>
-          <h2 className="gift-title">Make a wish, <span>{data.name}</span> 👑</h2>
-          <button className="btn-primary" onClick={() => { navigateTo('cake_blown'); setTimeout(launchConfetti, 100) }}>
-            Blow the Candle 🎈
-          </button>
-          <button className="btn-secondary" style={{ marginTop: '10px' }} onClick={() => navigateTo('menu')}>
-            ← Back to Menu
-          </button>
-        </div>
-      </div>
 
-      {/* ── SCREEN 4: CAKE BLOWN ── */}
-      <div className={`screen ${screen === 'cake_blown' ? 'visible' : ''}`}>
-        <BuntingSVG />
-        <div className="content-wrapper">
-          <div className="svg-container" style={{ opacity: 0.8 }}>
-            <CakeBlownSVG />
-          </div>
-          <h2 className="gift-title" style={{ marginBottom: '1.5rem' }}>Happy Birthday, habiby! 🎂</h2>
-          <button className="btn-secondary" onClick={() => navigateTo('cake_lit')}>Light it Again ✨</button>
-          <button className="btn-primary" style={{ marginTop: '15px' }} onClick={() => navigateTo('menu')}>
-            ← Back to Menu
-          </button>
-        </div>
-      </div>
-
-      {/* ── SCREEN 5: ENVELOPE ── */}
-      <div className={`screen ${screen === 'envelope' ? 'visible' : ''}`}>
-        <div className="content-wrapper" onClick={() => navigateTo('letter')}>
-          <div className="svg-container envelope" style={{ cursor: 'pointer' }}>
-            <EnvelopeSVG />
-          </div>
-          <p className="subtitle" style={{ letterSpacing: '0.2em', cursor: 'pointer' }}>✦ Click to open your letter ✦</p>
-          <button className="btn-secondary" style={{ marginTop: '20px' }} onClick={(e) => { e.stopPropagation(); navigateTo('menu'); }}>
-            ← Back to Menu
-          </button>
-        </div>
-      </div>
-
-      {/* ── SCREEN 6: LETTER (مع قلوب ناعمة وخفيفة متفاعلة لا تعلق أبداً) ── */}
-      <div
-        className={`screen ${screen === 'letter' ? 'visible' : ''}`}
-        onClick={handleLetterScreenClick}
-      >
-        {/* قلوب خلفية تطير للأعلى بسلاسة فائقة باستخدام تسريع كارت الشاشة GPU */}
-        {screen === 'letter' && (
-          <div className="letter-hearts-container" aria-hidden="true">
-            {BACKGROUND_HEARTS.map((h) => (
-              <span
-                key={h.id}
-                className="floating-heart"
-                style={{
-                  left: h.left,
-                  fontSize: `${h.size}px`,
-                  ['--duration' as any]: h.duration,
-                  ['--delay' as any]: h.delay,
-                  ['--sway-x' as any]: h.sway,
-                  ['--rot' as any]: h.rot,
-                  ['--max-opacity' as any]: h.opacity,
+          {!isCakeBlown ? (
+            <>
+              <h2 className="gift-title">Make a wish, <span>{data.name}</span> 👑</h2>
+              <p className="description">
+                Take a deep breath, make a heartfelt wish, and blow out the candle!
+              </p>
+              <button 
+                className="btn-primary" 
+                onClick={() => { 
+                  setIsCakeBlown(true)
+                  setTimeout(launchConfetti, 100)
                 }}
               >
-                {h.emoji}
-              </span>
-            ))}
-          </div>
-        )}
+                Blow the Candle 🎈
+              </button>
+            </>
+          ) : (
+            <>
+              <h2 className="gift-title" style={{ marginBottom: '1rem' }}>Happy Birthday, habiby! 🎂</h2>
+              <p className="description">
+                May all your wishes and dreams come true this year! ✨
+              </p>
+              <button className="btn-secondary" onClick={() => setIsCakeBlown(false)}>
+                Light it Again ✨
+              </button>
+            </>
+          )}
+        </div>
+      </section>
 
-        {/* قلوب تفاعلية تنبثق وتطير عند النقر على أي مكان بالشاشة */}
-        {screen === 'letter' && clickHearts.map((ch) => (
-          <span
-            key={ch.id}
-            className="click-heart-burst"
-            style={{
-              left: `${ch.x}px`,
-              top: `${ch.y}px`,
-              fontSize: `${ch.size}px`,
-              ['--burst-x' as any]: `${ch.burstX}px`,
-              ['--burst-y' as any]: `${ch.burstY}px`,
-              ['--burst-rot' as any]: `${ch.rot}deg`,
-            }}
-          >
-            {ch.emoji}
-          </span>
-        ))}
+      <div className="section-divider">✦ • 💌 • ✦</div>
 
-        <div className="content-wrapper" style={{ zIndex: 95, position: 'relative' }}>
+      {/* ── 3. SECTION: THE LETTER ── */}
+      <section id="letter" className="gift-section">
+        <div className="content-wrapper">
           <div className="letter-card">
             <div className="top-accent-sq"></div>
 
@@ -454,64 +389,20 @@ export default function GiftClient({ data }: Props) {
               <div className="letter-divider"><span>✦</span></div>
               <div className="signature" style={{ color: '#f472b6' }}>
                 <p>With all my love,</p>
-                <p>{data.senderName || 'Youssef'} ✨</p>
+                <p>{data.senderName || 'your love'} ✨</p>
               </div>
             </div>
-
-            <button
-              className="btn-secondary"
-              style={{ width: '100%', marginTop: '15px' }}
-              onClick={(e) => {
-                e.stopPropagation()
-                navigateTo('menu')
-              }}
-            >
-              ← Back to Menu
-            </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── SCREEN 7A: MOMENTS COVER ── */}
-      <div className={`screen ${screen === 'moments_cover' ? 'visible' : ''}`}>
-        <div className="content-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div
-            onClick={() => navigateTo('moments_book')}
-            style={{
-              width: '100%',
-              maxWidth: '310px',
-              background: '#1c0710',
-              border: '2px solid #50152d',
-              borderRadius: '16px',
-              padding: '16px',
-              textAlign: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 10px 30px rgba(219, 39, 119, 0.25)',
-              position: 'relative'
-            }}
-          >
-            <div style={{ width: '100%', height: '340px', position: 'relative', borderRadius: '10px', overflow: 'hidden', marginBottom: '12px' }}>
-              <Image
-                src="/images/cover.jpg"
-                alt="Moments Cover"
-                fill
-                style={{ objectFit: 'cover' }}
-                unoptimized
-              />
-            </div>
+      <div className="section-divider">✦ • 📸 • ✦</div>
 
-            <p style={{ color: '#f472b6', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.1em' }}>Tap to open album 📖</p>
-          </div>
-
-          <button className="btn-secondary" style={{ marginTop: '1.2rem', width: '100%', maxWidth: '310px' }} onClick={() => navigateTo('menu')}>← Back to Menu</button>
-        </div>
-      </div>
-
-      {/* ── SCREEN 7B: MOMENTS BOOK ── */}
-      <div className={`screen ${screen === 'moments_book' ? 'visible' : ''}`}>
+      {/* ── 4. SECTION: OUR MEMORIES ── */}
+      <section id="moments" className="gift-section">
         <div className="content-wrapper">
           <h2 className="gift-title" style={{ fontStyle: 'italic', marginBottom: '0.2rem' }}>Our Memories</h2>
-          <p className="subtitle" style={{ color: '#94a3b8', marginBottom: '1.2rem' }}>Page {currentPhotoIndex + 1} of 4</p>
+          <p className="subtitle" style={{ color: '#94a3b8', marginBottom: '1.2rem' }}>Photo {currentPhotoIndex + 1} of {momentsImages.length}</p>
 
           <div className="polaroid-card" style={{ width: '100%', maxWidth: '300px', margin: '0 auto 1.2rem auto', padding: '12px', background: '#1c0710' }}>
             <div className="polaroid-pin"></div>
@@ -520,9 +411,9 @@ export default function GiftClient({ data }: Props) {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'center', marginBottom: '1.2rem' }}>
             <button
-              onClick={() => setCurrentPhotoIndex((prev) => (prev > 0 ? prev - 1 : 3))}
+              onClick={() => setCurrentPhotoIndex((prev) => (prev > 0 ? prev - 1 : momentsImages.length - 1))}
               style={{
                 background: '#381322',
                 border: '1px solid #f472b6',
@@ -541,7 +432,7 @@ export default function GiftClient({ data }: Props) {
               ←
             </button>
             <button
-              onClick={() => setCurrentPhotoIndex((prev) => (prev < 3 ? prev + 1 : 0))}
+              onClick={() => setCurrentPhotoIndex((prev) => (prev < momentsImages.length - 1 ? prev + 1 : 0))}
               style={{
                 background: '#381322',
                 border: '1px solid #f472b6',
@@ -561,12 +452,37 @@ export default function GiftClient({ data }: Props) {
             </button>
           </div>
 
-          <button className="btn-secondary" style={{ width: '100%', maxWidth: '300px', margin: '0 auto' }} onClick={() => navigateTo('moments_cover')}>← Back to Cover</button>
+          {/* مصغرات الصور للانتقال السريع */}
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+            {momentsImages.map((img, idx) => (
+              <div
+                key={idx}
+                onClick={() => setCurrentPhotoIndex(idx)}
+                style={{
+                  width: '52px',
+                  height: '52px',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  border: currentPhotoIndex === idx ? '2px solid #f472b6' : '1px solid #50152d',
+                  transform: currentPhotoIndex === idx ? 'scale(1.1)' : 'scale(1)',
+                  transition: 'all 0.2s',
+                  boxShadow: currentPhotoIndex === idx ? '0 0 10px rgba(244, 114, 182, 0.5)' : 'none',
+                  opacity: currentPhotoIndex === idx ? 1 : 0.6
+                }}
+              >
+                <Image src={img} alt={`Thumb ${idx + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── SCREEN 8: SONG ── */}
-      <div className={`screen ${screen === 'song' ? 'visible' : ''}`}>
+      <div className="section-divider">✦ • 🎵 • ✦</div>
+
+      {/* ── 5. SECTION: OUR SONG ── */}
+      <section id="song" className="gift-section">
         <div className="content-wrapper">
           <div className="player-container">
             <div className={`vinyl-record-container ${isSongPlaying ? 'vinyl-spin' : 'vinyl-paused'}`}>
@@ -622,49 +538,86 @@ export default function GiftClient({ data }: Props) {
             onLoadedMetadata={handleSongLoadedMetadata}
             onEnded={() => setIsSongPlaying(false)}
           />
-
-          <button className="btn-secondary" style={{ marginTop: '1.5rem' }} onClick={() => navigateTo('menu')}>
-            ← Back to Menu
-          </button>
         </div>
-      </div>
+      </section>
 
-      {/* ── SCREEN 9: DATE / QUESTION ── */}
-      <div className={`screen ${screen === 'date' ? 'visible' : ''}`}>
+      <div className="section-divider">✦ • 💍 • ✦</div>
+
+      {/* ── 6. SECTION: THE QUESTION ── */}
+      <section id="date" className="gift-section">
         <div className="content-wrapper">
           <p className="subtitle">✦ IMPORTANT QUESTION ✦</p>
           <h1 className="gift-title">Will you stay with me forever?</h1>
 
-          <div className="svg-container" style={{ position: 'relative', width: '180px', height: '180px', margin: '15px auto' }}>
-            <Image src="/images/bear-ask.jpg" alt="Will you stay with me?" fill style={{ objectFit: 'cover', borderRadius: '50%' }} unoptimized />
-          </div>
+          {!hasSaidYes ? (
+            <>
+              <div className="svg-container" style={{ position: 'relative', width: '180px', height: '180px', margin: '15px auto' }}>
+                <Image src="/images/bear-ask.jpg" alt="Will you stay with me?" fill style={{ objectFit: 'cover', borderRadius: '50%' }} unoptimized />
+              </div>
 
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
-            <button className="btn-primary" style={{ fontSize: `${1 + noCount * 0.1}rem`, padding: `${0.8 + noCount * 0.1}rem ${2 + noCount * 0.1}rem` }} onClick={() => { navigateTo('success'); setTimeout(launchConfetti, 300) }}>Yes!</button>
-            <button className="secret-link" style={{ padding: '0.8rem 1.5rem', background: '#0d0407', borderRadius: '8px', border: '1px solid #451325', margin: 0 }} onClick={() => setNoCount(noCount + 1)}>
-              {['No', 'Please? 🥺', 'Really?!', 'Are you sure?', 'Knew you would say yes!'][Math.min(noCount, 4)]}
-            </button>
-          </div>
-          <button className="btn-secondary" style={{ marginTop: '15px' }} onClick={() => navigateTo('menu')}>
-            ← Back to Menu
-          </button>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
+                <button
+                  className="btn-primary"
+                  style={{
+                    fontSize: `${1 + noCount * 0.12}rem`,
+                    padding: `${0.8 + noCount * 0.1}rem ${2 + noCount * 0.15}rem`
+                  }}
+                  onClick={() => {
+                    setHasSaidYes(true)
+                    setTimeout(launchConfetti, 100)
+                  }}
+                >
+                  Yes! ❤️
+                </button>
+                <button
+                  className="secret-link"
+                  style={{
+                    padding: '0.8rem 1.5rem',
+                    background: '#0d0407',
+                    borderRadius: '8px',
+                    border: '1px solid #451325',
+                    margin: 0
+                  }}
+                  onClick={() => setNoCount(noCount + 1)}
+                >
+                  {['No', 'Please? 🥺', 'Really?!', 'Are you sure?', 'Knew you would say yes!'][Math.min(noCount, 4)]}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div style={{ marginTop: '10px' }}>
+              <Sparkles />
+              <div className="svg-container" style={{ position: 'relative', width: '190px', height: '190px', margin: '15px auto' }}>
+                <Image src="/images/bear-hug.gif" alt="Yay!" fill style={{ objectFit: 'cover', borderRadius: '50%' }} unoptimized />
+              </div>
+              <h2 className="gift-title" style={{ color: '#f472b6', fontSize: '2.2rem', marginTop: '10px' }}>
+                Knew you would say yes! ❤️
+              </h2>
+              <p className="description" style={{ color: '#fbcfe8', fontSize: '1.05rem', margin: '10px auto' }}>
+                Forever & always with you babe 💍✨
+              </p>
+            </div>
+          )}
         </div>
-      </div>
+      </section>
 
-      {/* ── SCREEN 10: SUCCESS ── */}
-      <div className={`screen ${screen === 'success' ? 'visible' : ''}`}>
-        <Sparkles />
-        <div className="content-wrapper">
-          <p className="subtitle">✦ IT IS A YES! ✦</p>
-          <h1 className="gift-title">Knew you would say yes! ❤️</h1>
-          <div className="svg-container" style={{ position: 'relative', width: '180px', height: '180px', margin: '15px auto' }}>
-            <Image src="/images/bear-hug.gif" alt="Yay!" fill style={{ objectFit: 'cover', borderRadius: '50%' }} unoptimized />
-          </div>
-          <button className="btn-secondary" style={{ marginTop: '15px' }} onClick={() => navigateTo('menu')}>
-            ← Back to Menu
-          </button>
-        </div>
-      </div>
+      {/* ── FOOTER ── */}
+      <footer style={{ textAlign: 'center', padding: '40px 15px 110px 15px', position: 'relative', zIndex: 20 }}>
+        <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>👑</div>
+        <p style={{ color: '#f472b6', fontStyle: 'italic', fontSize: '1.1rem' }}>
+          Made with all my love for you, Ahmed ❤️
+        </p>
+        <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '6px', letterSpacing: '0.15em' }}>
+          FOREVER & ALWAYS
+        </p>
+        <button
+          onClick={() => scrollTo('intro')}
+          className="btn-secondary"
+          style={{ marginTop: '22px', padding: '0.5rem 1.8rem', fontSize: '0.85rem' }}
+        >
+          ↑ Back to Top
+        </button>
+      </footer>
     </div>
   )
 }
@@ -689,7 +642,7 @@ function Sparkles() {
 
 function BuntingSVG() {
   return (
-    <svg width="100%" height="80" viewBox="0 0 800 80" preserveAspectRatio="none" style={{ position: 'fixed', top: 0, left: 0, zIndex: 0, opacity: 0.7, pointerEvents: 'none' }}>
+    <svg width="100%" height="80" viewBox="0 0 800 80" preserveAspectRatio="none" style={{ position: 'absolute', top: 0, left: 0, zIndex: 30, opacity: 0.8, pointerEvents: 'none' }}>
       <line x1="0" y1="20" x2="800" y2="20" stroke="#50152d" strokeWidth="2" />
       {[...Array(10)].map((_, i) => (
         <polygon key={i} points={`${30 + i * 80},20 ${60 + i * 80},20 ${45 + i * 80},60`} fill={i % 2 === 0 ? "#db2777" : "#f472b6"} />
