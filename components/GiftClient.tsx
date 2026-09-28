@@ -36,6 +36,7 @@ export default function GiftClient({ data }: Props) {
   const [noCount, setNoCount] = useState(0)
 
   // معرض الذكريات
+  const [isAlbumOpen, setIsAlbumOpen] = useState(false)
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const momentsImages = ['/images/pic1.jpg', '/images/pic2.jpg', '/images/pic3.jpg', '/images/pic4.jpg']
 
@@ -402,80 +403,128 @@ export default function GiftClient({ data }: Props) {
       <section id="moments" className="gift-section">
         <div className="content-wrapper">
           <h2 className="gift-title" style={{ fontStyle: 'italic', marginBottom: '0.2rem' }}>Our Memories</h2>
-          <p className="subtitle" style={{ color: '#94a3b8', marginBottom: '1.2rem' }}>Photo {currentPhotoIndex + 1} of {momentsImages.length}</p>
+          <p className="subtitle" style={{ color: '#94a3b8', marginBottom: '1.2rem' }}>
+            {isAlbumOpen ? `Photo ${currentPhotoIndex + 1} of ${momentsImages.length}` : 'Special Photo Album 📖'}
+          </p>
 
-          <div className="polaroid-card" style={{ width: '100%', maxWidth: '300px', margin: '0 auto 1.2rem auto', padding: '12px', background: '#1c0710' }}>
-            <div className="polaroid-pin"></div>
-            <div className="polaroid-img-wrapper" style={{ width: '100%', height: '320px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
-              <Image src={momentsImages[currentPhotoIndex]} alt={`Memory ${currentPhotoIndex + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'center', marginBottom: '1.2rem' }}>
-            <button
-              onClick={() => setCurrentPhotoIndex((prev) => (prev > 0 ? prev - 1 : momentsImages.length - 1))}
+          {!isAlbumOpen ? (
+            /* كفر الألبوم الخارجي */
+            <div
+              onClick={() => setIsAlbumOpen(true)}
+              className="polaroid-card"
               style={{
-                background: '#381322',
-                border: '1px solid #f472b6',
-                color: '#fbcfe8',
-                width: '45px',
-                height: '45px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                width: '100%',
+                maxWidth: '310px',
+                background: '#1c0710',
+                border: '2px solid #50152d',
+                borderRadius: '16px',
+                padding: '16px',
+                textAlign: 'center',
                 cursor: 'pointer',
-                fontSize: '1.2rem',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                boxShadow: '0 10px 30px rgba(219, 39, 119, 0.35)',
+                margin: '0 auto',
+                transition: 'transform 0.3s ease, border-color 0.3s ease'
               }}
             >
-              ←
-            </button>
-            <button
-              onClick={() => setCurrentPhotoIndex((prev) => (prev < momentsImages.length - 1 ? prev + 1 : 0))}
-              style={{
-                background: '#381322',
-                border: '1px solid #f472b6',
-                color: '#fbcfe8',
-                width: '45px',
-                height: '45px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                fontSize: '1.2rem',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-              }}
-            >
-              →
-            </button>
-          </div>
-
-          {/* مصغرات الصور للانتقال السريع */}
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-            {momentsImages.map((img, idx) => (
-              <div
-                key={idx}
-                onClick={() => setCurrentPhotoIndex(idx)}
-                style={{
-                  width: '52px',
-                  height: '52px',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  cursor: 'pointer',
-                  border: currentPhotoIndex === idx ? '2px solid #f472b6' : '1px solid #50152d',
-                  transform: currentPhotoIndex === idx ? 'scale(1.1)' : 'scale(1)',
-                  transition: 'all 0.2s',
-                  boxShadow: currentPhotoIndex === idx ? '0 0 10px rgba(244, 114, 182, 0.5)' : 'none',
-                  opacity: currentPhotoIndex === idx ? 1 : 0.6
-                }}
-              >
-                <Image src={img} alt={`Thumb ${idx + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
+              <div style={{ width: '100%', height: '340px', position: 'relative', borderRadius: '10px', overflow: 'hidden', marginBottom: '12px' }}>
+                <Image
+                  src="/images/cover.jpg"
+                  alt="Moments Cover"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  unoptimized
+                />
               </div>
-            ))}
-          </div>
+
+              <p style={{ color: '#f472b6', fontSize: '0.9rem', fontWeight: 'bold', letterSpacing: '0.1em' }}>
+                Tap to open album 📖
+              </p>
+            </div>
+          ) : (
+            /* محتوى الألبوم بعد الفتح */
+            <div style={{ width: '100%', animation: 'fadeIn 0.5s ease' }}>
+              <div className="polaroid-card" style={{ width: '100%', maxWidth: '300px', margin: '0 auto 1.2rem auto', padding: '12px', background: '#1c0710' }}>
+                <div className="polaroid-pin"></div>
+                <div className="polaroid-img-wrapper" style={{ width: '100%', height: '320px', position: 'relative', borderRadius: '8px', overflow: 'hidden' }}>
+                  <Image src={momentsImages[currentPhotoIndex]} alt={`Memory ${currentPhotoIndex + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', alignItems: 'center', marginBottom: '1.2rem' }}>
+                <button
+                  onClick={() => setCurrentPhotoIndex((prev) => (prev > 0 ? prev - 1 : momentsImages.length - 1))}
+                  style={{
+                    background: '#381322',
+                    border: '1px solid #f472b6',
+                    color: '#fbcfe8',
+                    width: '45px',
+                    height: '45px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                  }}
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => setCurrentPhotoIndex((prev) => (prev < momentsImages.length - 1 ? prev + 1 : 0))}
+                  style={{
+                    background: '#381322',
+                    border: '1px solid #f472b6',
+                    color: '#fbcfe8',
+                    width: '45px',
+                    height: '45px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                  }}
+                >
+                  →
+                </button>
+              </div>
+
+              {/* مصغرات الصور للانتقال السريع */}
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '1.2rem' }}>
+                {momentsImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setCurrentPhotoIndex(idx)}
+                    style={{
+                      width: '52px',
+                      height: '52px',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      border: currentPhotoIndex === idx ? '2px solid #f472b6' : '1px solid #50152d',
+                      transform: currentPhotoIndex === idx ? 'scale(1.1)' : 'scale(1)',
+                      transition: 'all 0.2s',
+                      boxShadow: currentPhotoIndex === idx ? '0 0 10px rgba(244, 114, 182, 0.5)' : 'none',
+                      opacity: currentPhotoIndex === idx ? 1 : 0.6
+                    }}
+                  >
+                    <Image src={img} alt={`Thumb ${idx + 1}`} fill style={{ objectFit: 'cover' }} unoptimized />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                className="btn-secondary"
+                style={{ margin: '0 auto', fontSize: '0.85rem', padding: '0.5rem 1.4rem' }}
+                onClick={() => setIsAlbumOpen(false)}
+              >
+                ← View Album Cover 📖
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
