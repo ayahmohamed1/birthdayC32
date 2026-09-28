@@ -1,6 +1,13 @@
-import { redirect } from 'next/navigation'
+import giftData from '@/lib/giftData'
+import GiftClient from '@/components/GiftClient'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Happy Birthday Ahmed! 🎂',
+  description: 'A special birthday message for Ahmed',
+}
 
 export default function Home() {
-  // Default demo redirect — change "aya" to any valid gift ID
-  redirect('/gift/aya')
+  const data = giftData.ahmed || giftData.aya
+  return <GiftClient data={data} />
 }
